@@ -1,0 +1,46 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: %NAMESPACE%
+  name: pythonapp
+  labels:
+    app: python
+    component: app
+spec:
+  replicas: %REPLICA_COUNT%
+  selector:
+    matchLabels:
+      app: python
+      component: app
+  template:
+    metadata:
+      labels:
+        app: python
+        component: app
+    spec:
+      containers:
+      - name: pythonapp
+        image: 937396830441.dkr.ecr.ap-south-1.amazonaws.com/pythonapp:%ENVIRONMENT%-%GIT_COMMIT_HASH_SHORT%
+        imagePullPolicy: Always
+        ports:
+        - name: pythonapp
+          containerPort: 8000
+          protocol: TCP
+                                                                                                    
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: %NAMESPACE%
+  name: pythonapp-service
+spec:
+  type: NodePort
+  selector:
+    app: python
+    component: app
+  ports:
+    - port: 8000 # Default port for image
+      targetPort: 8000
+      nodePort: 30301
+      protocol: TCP
